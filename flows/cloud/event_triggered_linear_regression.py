@@ -1,5 +1,6 @@
 from metaflow import FlowSpec, step, card, conda_base, current, Parameter, Flow, trigger
 from metaflow.cards import Markdown, Table, Image, Artifact
+import numpy as np
 
 URL = "https://outerbounds-datasets.s3.us-west-2.amazonaws.com/taxi/latest.parquet"
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
@@ -16,22 +17,22 @@ class TaxiFarePrediction(FlowSpec):
             # Try to complete tasks 2 and 3 with this function doing nothing like it currently is.
             # Understand what is happening.
             # Revisit task 1 and think about what might go in this function.
-
-        obviously_bad_data_filters = [
+            obviously_bad_data_filters = [
 
             df.fare_amount > 0,         # fare_amount in US Dollars
             df.trip_distance <= 100,    # trip_distance in miles
-            df.trip_distance > 0
-
+            df.trip_distance > 0,
+            df.passenger_count > 0,
+            df.trip_distance > 0.5,
             # TODO: add some logic to filter out what you decide is bad data!
             # TIP: Don't spend too much time on this step for this project though, it practice it is a never-ending process.
+            df.replace([np.inf, -np.inf], np.nan, inplace=True),
+            df.dropna(inplace=True)
+             ]
+            #df.replace([np.inf, -np.inf], np.nan, inplace=True)
+            #df.dropna(inplace=True)
 
-        ]
-
-        for f in obviously_bad_data_filters:
-            df = df[f]
-            
-        return df
+            return df
 
     @step
     def start(self):
